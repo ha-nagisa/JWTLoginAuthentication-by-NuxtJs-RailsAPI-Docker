@@ -1,6 +1,6 @@
 # composeファイルのバージョン指定
 # Doc: https://docs.docker.com/compose/compose-file/compose-versioning/
-version: "3.8"
+version: '3.8'
 
 services:
   # サービス(= コンテナ)
@@ -18,7 +18,7 @@ services:
     # ホスト側のディレクトリをコンテナで使用する
     # volumes: ホストパス(絶対 or 相対):コンテナパス(絶対)
     volumes:
-      - "./api/tmp/db:/var/lib/postgresql/data"
+      - './api/tmp/db:/var/lib/postgresql/data'
 
   api:
     # ベースイメージとなるDockerfileを指定
@@ -29,28 +29,29 @@ services:
         WORKDIR: $WORKDIR
     environment:
       POSTGRES_PASSWORD: $POSTGRES_PASSWORD
-      API_DOMAIN: "localhost:$FRONT_PORT"
+      API_DOMAIN: 'localhost:$FRONT_PORT'
+    command: /bin/sh -c "rm -f tmp/pids/server.pid && bundle exec rails s -p 3000 -b '0.0.0.0'"
     volumes:
-      - "./api:/$WORKDIR"
+      - './api:/$WORKDIR'
     # サービスの依存関係を定義(起動の順番)
     depends_on:
       - db
     # 公開用ポートを指定
     # 公開したいポート番号:コンテナポート
     ports:
-      - "$API_PORT:3000"
+      - '$API_PORT:3000'
 
   front:
     build:
       context: ./front
       args:
         WORKDIR: $WORKDIR
-        API_URL: "http://localhost:$API_PORT"
+        API_URL: 'http://localhost:$API_PORT'
     # コンテナで実行したいコマンド(CMD)
     command: yarn run dev
     volumes:
-      - "./front:/$WORKDIR"
+      - './front:/$WORKDIR'
     ports:
-      - "$FRONT_PORT:3000"
+      - '$FRONT_PORT:3000'
     depends_on:
       - api
